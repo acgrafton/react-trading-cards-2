@@ -46,22 +46,18 @@ class TradingCardContainer extends React.Component {
     this.updateCards = this.updateCards.bind(this);
   }
 
-    updateCards() {
-      const floatCard = {
-        name: 'Float',
-        skill: 'baking pretzels',
-        imgUrl: '/static/img/float.jpg'
-      };
+  updateCards(response) {
+    const cards = response.cards;
+    this.setState({ cards: cards });
+    }
 
-    this.setState({
-      cards: [ floatCard ]
-    });
+  getAllCards() {
+    $.get('api/cards', this.updateCards)
   }
 
   componentDidMount() {
-    this.updateCards();
-  }
-
+      this.getAllCards();
+    }
 
   render() {
     const tradingCards = [];
@@ -78,7 +74,70 @@ class TradingCardContainer extends React.Component {
     }
 
     return (
-      <div id="container">{tradingCards}</div>
+      <div>
+        <TradingCardForm /> // Instantiating TradingCardForm
+        <div id="container">{tradingCards}</div>
+      </div>
+    );
+  }
+}
+
+class TradingCardForm extends React.Component {
+  constructor() {
+    super()
+
+    this.state = {
+      name: '',
+      skill: ''
+    };
+
+    this.handleNameChange = this.handleNameChange.bind(this);
+    this.handleSkillChange = this.handleSkillChange.bind(this);
+    this.addNewCard = this.addNewCard.bind(this);
+  }
+
+  addNewCard() {
+    const data = {
+      name: this.state.name,
+      skill: this.state.skill
+    };
+
+    $.post('/api/cards', data, this.updateCards); // add to database
+  }
+
+  updateCards() {
+    alert('done adding a new card!')
+  }
+
+  handleNameChange(e) {
+    this.setState({ name: e.target.value });
+  }
+
+  handleSkillChange(e) {
+    this.setState({ skill: e.target.value });
+  }
+
+  render () {
+    return (
+      <form>
+        <label for="name">Name:</label>
+        <input
+          id="name"
+          type="text"
+          value={this.state.name}
+          onChange={this.handleNameChange}
+        />
+
+      <label for="skill">Skill:</label>
+      <input
+        id="skill"
+        type="text"
+        value={this.state.skill}
+        onChange={this.handleSkillChange}
+      />
+
+      <button onClick={this.addNewCard}>Add</button> // listener for click. calls Add New Card function.
+      </form>
     );
   }
 }
